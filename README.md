@@ -90,6 +90,14 @@ python main.py portfolio remove VYM
 python main.py portfolio show
 ```
 
+## Check Status
+```
+python main.py stats              # DB row counts
+python main.py universe show      # Full ETF universe
+python main.py universe stats     # Price/macro data coverage
+python main.py predict            # Latest ranked predictions
+```
+
 
 ## Examples
 ### Discover
