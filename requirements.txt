@@ -5,6 +5,9 @@ python-dotenv
 # ML / Deep Learning
 torch
 
+# MCP Server
+mcp[cli]
+
 # Testing
 pytest
 
