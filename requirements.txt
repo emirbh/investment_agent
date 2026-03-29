@@ -1,0 +1,12 @@
+fredapi
+yfinance
+python-dotenv
+
+# ML / Deep Learning
+torch
+
+# Testing
+pytest
+
+# Scheduling (optional — for daemon mode)
+# apscheduler
