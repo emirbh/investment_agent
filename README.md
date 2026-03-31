@@ -99,6 +99,25 @@ python main.py pipeline
 python main.py scheduler
 ```
 
+## Adjust Portfolio
+
+```
+python main.py portfolio add NOBL 75 --cost 98.00       # new position
+python main.py portfolio add SCHD 50 --cost 26.00       # add to existing
+python main.py portfolio update SCHD 200 --cost 26.50   # replace share count
+python main.py portfolio remove VYM                      # remove entirely
+python main.py portfolio show                            # view holdings
+```
+
+## Check Status
+
+```
+python main.py stats              # DB row counts
+python main.py universe show      # full ETF universe
+python main.py universe stats     # price/macro data coverage
+python main.py predict            # latest ranked predictions
+```
+
 ## MCP Server
 
 Run conversationally with Claude Desktop or Claude Code:
@@ -121,22 +140,3 @@ Add to Claude Desktop config (`~/Library/Application Support/Claude/claude_deskt
 ```
 
 16 tools exposed: `portfolio_show`, `portfolio_add`, `portfolio_remove`, `portfolio_update`, `universe_show`, `universe_seed`, `discover`, `collect`, `featurize`, `train`, `predict`, `backtest`, `report`, `pipeline`, `stats`, `live_price`.
-
-## Adjust Portfolio
-
-```
-python main.py portfolio add NOBL 75 --cost 98.00       # new position
-python main.py portfolio add SCHD 50 --cost 26.00       # add to existing
-python main.py portfolio update SCHD 200 --cost 26.50   # replace share count
-python main.py portfolio remove VYM                      # remove entirely
-python main.py portfolio show                            # view holdings
-```
-
-## Check Status
-
-```
-python main.py stats              # DB row counts
-python main.py universe show      # full ETF universe
-python main.py universe stats     # price/macro data coverage
-python main.py predict            # latest ranked predictions
-```
