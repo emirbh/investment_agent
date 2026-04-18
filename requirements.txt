@@ -5,6 +5,10 @@ python-dotenv
 # ML / Deep Learning
 torch
 
+# UI
+streamlit
+plotly
+
 # MCP Server
 mcp[cli]
 

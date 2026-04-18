@@ -46,9 +46,15 @@ if not backtest_df.empty:
     with col2:
         st.metric(label="Baseline Return", value=f"{latest_bt['baseline_return']*100:.2f}%")
     with col3:
-        st.metric(label="Strategy Sharpe", value=f"{latest_bt['strategy_sharpe']:.2f}")
+        sharpe = latest_bt["strategy_sharpe"]
+        st.metric(label="Strategy Sharpe", value=f"{sharpe:.2f}" if sharpe is not None else "—")
     with col4:
-        st.metric(label="Max Drawdown", value=f"{latest_bt['max_drawdown']*100:.2f}%", delta_color="inverse")
+        drawdown = latest_bt["max_drawdown"]
+        st.metric(
+            label="Max Drawdown",
+            value=f"{drawdown * 100:.2f}%" if drawdown is not None else "—",
+            delta_color="inverse",
+        )
 
     # Plot performance chart (if we had series data, but we just have table rows for backtest runs)
     # Let's plot the strategy return over different backtest run dates to show stability over time
@@ -83,33 +89,48 @@ def color_action(val):
     return f'color: {color}; font-weight: bold;'
 
 st.dataframe(
-    preds_df.style.applymap(color_action, subset=['Action'])
-                  .format({"Expected_Return": "{:.2%}", "Confidence": "{:.1%}", "Yield": "{:.2f}%"}),
+    preds_df.style.map(color_action, subset=["Action"]).format(
+        {"Expected_Return": "{:.2%}", "Confidence": "{:.1%}", "Yield": "{:.2f}%"},
+        na_rep="—",
+    ),
     use_container_width=True,
-    hide_index=True
+    hide_index=True,
 )
 
 # 3. Deep Dive Explorer
 st.header("3. ETF Deep Dive", divider="green")
 
-selected_ticker = st.selectbox("Select an ETF to visualize historic trends:", preds_df['Ticker'].tolist())
+selected_tickers = st.multiselect(
+    "Select ETFs to compare historic trends (normalized):", 
+    preds_df['Ticker'].tolist(),
+    default=[preds_df['Ticker'].iloc[0]] if not preds_df.empty else None
+)
 
-if selected_ticker:
-    price_df = query_db("SELECT date, close, dividends FROM price_history WHERE ticker = ? ORDER BY date DESC LIMIT 250", (selected_ticker,))
+if selected_tickers:
+    placeholders = ",".join("?" for _ in selected_tickers)
+    query = f"SELECT ticker, date, close, dividends FROM price_history WHERE ticker IN ({placeholders}) ORDER BY date"
+    prices_df = query_db(query, tuple(selected_tickers))
     
-    if not price_df.empty:
-        price_df['date'] = pd.to_datetime(price_df['date'])
-        price_df = price_df.sort_values('date') # Needs to be chronological for line chart
+    if not prices_df.empty:
+        prices_df['date'] = pd.to_datetime(prices_df['date'])
         
-        fig_px = px.line(price_df, x="date", y="close", title=f"{selected_ticker} - 1 Year Price History")
+        # Keep only last 250 days per ticker to ensure comparable 1-year windows
+        prices_df = prices_df.sort_values('date').groupby('ticker').tail(250).reset_index(drop=True)
         
-        # Overlay dividends if any
-        divs = price_df[price_df['dividends'] > 0]
+        # Normalize to Base 100 for comparison
+        first_prices = prices_df.groupby('ticker')['close'].transform('first')
+        prices_df['Normalized Price'] = (prices_df['close'] / first_prices) * 100
+        
+        fig_px = px.line(prices_df, x="date", y="Normalized Price", color="ticker", 
+                         title="1 Year Relative Price Performance (Base 100)")
+        
+        divs = prices_df[prices_df['dividends'] > 0]
         if not divs.empty:
-            fig_px.add_scatter(x=divs['date'], y=divs['close'], mode='markers', 
-                               marker=dict(color='red', size=10, symbol='star'), 
+            fig_px.add_scatter(x=divs['date'], y=divs['Normalized Price'], mode='markers', 
+                               marker=dict(color='yellow', size=10, symbol='star', line=dict(color='black', width=1)),
+                               hovertext=divs['ticker'] + " Dividend: $" + divs['dividends'].round(3).astype(str),
                                name='Dividend Payout')
             
         st.plotly_chart(fig_px, use_container_width=True)
     else:
-        st.warning(f"No price history available across the database for {selected_ticker}.")
+        st.warning("No price history available across the database for the selected tickers.")
