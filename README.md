@@ -8,12 +8,12 @@ Runs as a CLI tool (`main.py`), an MCP server for conversational use with Claude
 
 - **Universe construction** — Starts from a curated seed list of 40+ dividend ETFs across 7 categories (high yield, dividend growth, covered call, preferred stock, international, REITs, utilities). Expands automatically by scanning yfinance metadata, filtering by minimum AUM and dividend yield, and classifying into strategy categories.
 
-- **Data pipeline** — Daily price/volume/dividend data from yfinance and 10 macroeconomic series from FRED (fed funds rate, 10Y/2Y Treasury yields, yield curve spread, CPI, core CPI, TIPS real yield, high-yield credit spread, WTI crude, unemployment). All stored in SQLite with WAL mode for concurrent reads.
+- **Data pipeline** — Daily price/volume/dividend data from yfinance and 16 macroeconomic series from FRED (fed funds rate, 10Y/2Y Treasury yields, yield curve spread, CPI, core CPI, TIPS real yield, high-yield credit spread, WTI crude, unemployment, VIX, U.S. Dollar Index, Corporate Bond Yield, 10-Year Breakeven Inflation, 30-Year Mortgage Rate, M2 Money Stock). All stored in SQLite with WAL mode for concurrent reads.
 
-- **Feature engineering** — 24 features per ticker per day:
-  - Price-derived: log returns at 5 horizons (1d, 5d, 10d, 21d, 63d), rolling volatility (10d, 21d), SMA ratios (10/21/50-day), RSI-14, volume ratio vs 20-day average
-  - Dividend: trailing 12-month yield, distance from 52-week high/low
-  - Macro: all 10 FRED series forward-filled to align with trading dates
+- **Feature engineering** — 33 features per ticker per day:
+  - Price-derived: log returns at 5 horizons (1d, 5d, 10d, 21d, 63d), rolling volatility (10d, 21d), SMA ratios (10/21/50-day), RSI-14, volume ratio vs 20-day average, 63-day max drawdown
+  - Dividend: trailing 12-month yield, distance from 52-week high/low, YoY dividend growth, 10-year Treasury yield spread
+  - Macro: all 16 FRED series forward-filled to align with trading dates
   - Target variable: forward 21-day log return
 
 - **Model architecture** — 2-layer LSTM (hidden=64, dropout=0.2) with temporal attention that learns which days in the input window matter most, followed by a fully connected head (64 → 32 → 1). Input normalization via LayerNorm. Predicts a single scalar: expected forward return.
