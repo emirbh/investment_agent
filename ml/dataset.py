@@ -38,6 +38,15 @@ FEATURE_KEYS: list[str] = [
     "oil_wti",
     "real_yield",
     "unemployment",
+    "max_drawdown_63",
+    "div_growth_yoy",
+    "vix",
+    "dxy",
+    "corp_yield",
+    "breakeven_10y",
+    "mortgage_30y",
+    "m2_supply",
+    "spread_10y",
 ]
 
 NUM_FEATURES: int = len(FEATURE_KEYS)

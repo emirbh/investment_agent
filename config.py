@@ -37,6 +37,12 @@ FRED_SERIES: dict[str, str] = {
     "BAMLH0A0HYM2": "US High Yield Spread — credit risk appetite",
     "DCOILWTICO": "WTI Crude Oil Price — energy sector dividend driver",
     "UNRATE": "Unemployment Rate — consumer spending, REIT health",
+    "VIXCLS": "Cboe Volatility Index",
+    "DTWEXBGS": "Trade Weighted U.S. Dollar Index",
+    "BAMLC0A0CMEY": "ICE BofA US Corporate Index Effective Yield",
+    "T10YIE": "10-Year Breakeven Inflation Rate",
+    "MORTGAGE30US": "30-Year Fixed Rate Mortgage Average",
+    "M2SL": "M2 Money Stock",
 }
 
 # Grouped by strategy for comparison within and across categories.

@@ -10,3 +10,6 @@ reports/
 dist/
 build/
 .pytest_cache/
+html2pdf*.html
+*.pdf
+.*.swp

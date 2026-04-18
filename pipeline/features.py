@@ -136,6 +136,13 @@ def compute_features(tickers: list[str] | None = None) -> int:
             )
             features["dist_52w_low"] = (close - low_52) / low_52 if low_52 > 0 else None
 
+            window_63: int = min(63, i + 1)
+            max_63: float = max(closes[i - window_63 + 1 : i + 1])
+            features["max_drawdown_63"] = (close - max_63) / max_63 if max_63 > 0 else None
+
+            trailing_divs_prev: float = sum(dividends[max(0, i - 503) : max(0, i - 251)])
+            features["div_growth_yoy"] = (trailing_divs / trailing_divs_prev - 1) if trailing_divs_prev > 0 else 0.0
+
             macro_today: dict[str, float] = macro_data.get(date, {})
             features["fed_rate"] = macro_today.get("FEDFUNDS")
             features["treasury_10y"] = macro_today.get("DGS10")
@@ -146,6 +153,16 @@ def compute_features(tickers: list[str] | None = None) -> int:
             features["oil_wti"] = macro_today.get("DCOILWTICO")
             features["real_yield"] = macro_today.get("DFII10")
             features["unemployment"] = macro_today.get("UNRATE")
+            features["vix"] = macro_today.get("VIXCLS")
+            features["dxy"] = macro_today.get("DTWEXBGS")
+            features["corp_yield"] = macro_today.get("BAMLC0A0CMEY")
+            features["breakeven_10y"] = macro_today.get("T10YIE")
+            features["mortgage_30y"] = macro_today.get("MORTGAGE30US")
+            features["m2_supply"] = macro_today.get("M2SL")
+
+            ty: float | None = features.get("treasury_10y")
+            tdy: float | None = features.get("trailing_div_yield")
+            features["spread_10y"] = (tdy - ty) if (tdy is not None and ty is not None) else None
 
             target: float | None = None
             if i + 21 < len(prices):
